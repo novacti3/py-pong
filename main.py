@@ -10,8 +10,12 @@ def main():
     pypong_instance = pypong.GameInstance(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_CAPTION)   
     
     delta_time = 0.0
+    last_time = 0.0
     while pypong_instance.run(delta_time) != -1:
-        pass
+        t = pygame.time.get_ticks()
+        delta_time = (t - last_time) / 1000
+        last_time = t
+        
     pypong_instance.quit()
 
 
