@@ -9,6 +9,7 @@ from pypong.core.ui import UIManager, Text
 COLOR_WHITE = (255, 255, 255)
 COLOR_LIGHT_GREY = (150, 150, 150)
 COLOR_DARK_GREY = (77, 77, 77)
+COLOR_BLACK = (0, 0, 0)
 
 
 TITLE_TEXT_SIZE = 72
@@ -41,29 +42,12 @@ class GameInstance:
         event_result = self._handle_events()
 
         match(self._game_stats.get_current_game_state()):
+            case GameState.GAME_START:
+                self._render_start_screen()
+            
             case GameState.ROUND_START:
-                title_card: Text = self._ui.draw_text("Py-Pong!", "title", COLOR_WHITE)
-                title_card_pos = (
-                    self._window.get_width() / 2 - title_card.size[0] / 2, 
-                    self._window.get_height()/ 2 - title_card.size[1] / 2 - title_card.line_size
-                )
-
-                space_prompt: Text = self._ui.draw_text("Press SPACE to start", "prompt", COLOR_LIGHT_GREY)
-                space_prompt_pos = (
-                    self._window.get_width()/2 - space_prompt.size[0] / 2,
-                    ((self._window.get_height()/2 - space_prompt.size[1] / 2))
-                )
-                
-                escape_prompt: Text = self._ui.draw_text("Press ESC to quit the game", "prompt", COLOR_LIGHT_GREY)
-                escape_prompt_pos = (
-                    self._window.get_width()/2 - escape_prompt.size[0] / 2,
-                    (self._window.get_height()/2 - escape_prompt.size[1] / 2) + space_prompt.line_size
-                )
-
-                window_surface = self._window.get_surface()
-                window_surface.blit(title_card.surface, title_card_pos)
-                window_surface.blit(space_prompt.surface, space_prompt_pos)
-                window_surface.blit(escape_prompt.surface, escape_prompt_pos)
+                self._render_game_screen()
+                pass
 
             case GameState.ROUND_IN_PROGRESS:
                 pass
@@ -97,19 +81,60 @@ class GameInstance:
         pass
 
 
-    def _handle_events(self):
-        # TODO: Implement pygame event handling
+    def _handle_events(self) -> int:
         events = pygame.event.get()
         for event in events:
             match(event.type):
                 case pygame.QUIT:
                     return -1
+                
                 case pygame.KEYDOWN:
-                    if event.key == pygame.K_ESCAPE:
-                        return -1
-        pass
+                    match(event.key):
+                        case pygame.K_ESCAPE:
+                            return -1
+                    
+                        case pygame.K_SPACE:
+                            current_game_state = self.get_game_stats().get_current_game_state()
+                            
+                            if current_game_state == GameState.GAME_START:
+                                self.get_game_stats().set_current_game_state(GameState.ROUND_START)
+                            
+                            if current_game_state == GameState.ROUND_START:
+                                self.get_game_stats().set_current_game_state(GameState.ROUND_IN_PROGRESS)
+
+        return 1
 
 
     def _handle_input(self):
         # TODO: Implement player input handling
         pass
+
+
+    def _render_start_screen(self) -> None:
+        title_card: Text = self._ui.draw_text("Py-Pong!", "title", COLOR_WHITE)
+        title_card_pos = (
+            self._window.get_size()[0] / 2 - title_card.size[0] / 2, 
+            self._window.get_size()[1] / 2 - title_card.size[1] / 2 - title_card.line_size
+        )
+
+        space_prompt: Text = self._ui.draw_text("Press SPACE to start", "prompt", COLOR_LIGHT_GREY)
+        space_prompt_pos = (
+            self._window.get_size()[0] / 2 - space_prompt.size[0] / 2,
+            ((self._window.get_size()[1] / 2 - space_prompt.size[1] / 2))
+        )
+        
+        escape_prompt: Text = self._ui.draw_text("Press ESC to quit the game", "prompt", COLOR_LIGHT_GREY)
+        escape_prompt_pos = (
+            self._window.get_size()[0] / 2 - escape_prompt.size[0] / 2,
+            (self._window.get_size()[1] / 2 - escape_prompt.size[1] / 2) + space_prompt.line_size
+        )
+
+        window_surface = self._window.get_surface()
+        window_surface.blit(title_card.surface, title_card_pos)
+        window_surface.blit(space_prompt.surface, space_prompt_pos)
+        window_surface.blit(escape_prompt.surface, escape_prompt_pos)
+
+    
+    def _render_game_screen(self) -> None:
+        window = self.get_window()
+        window.get_surface().fill(COLOR_BLACK)

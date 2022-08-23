@@ -1,3 +1,4 @@
+from typing import Tuple
 import pygame
 
 
@@ -18,11 +19,8 @@ class GameWindow:
     def get_surface(self) -> pygame.Surface:
         return self._surface
 
-    def get_width(self) -> int:
-        return self._width
-
-    def get_height(self) -> int:
-        return self._height
+    def get_size(self) -> Tuple[int, int]:
+        return (self._width, self._height)
 
     def get_caption(self) -> str:
         return self._caption

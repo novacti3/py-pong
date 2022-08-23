@@ -3,16 +3,17 @@ from typing import Tuple
 
 
 class GameState(Enum):
-    ROUND_START = 0
-    ROUND_IN_PROGRESS = 1
-    ROUND_END = 2
+    GAME_START = 0
+    ROUND_START = 1
+    ROUND_IN_PROGRESS = 2
+    ROUND_END = 3
 
 
 class GameStats:
     def __init__(self) -> None:
         self._player_one_score = 0
         self._player_two_score = 0
-        self._current_game_state = GameState.ROUND_START
+        self._current_game_state = GameState.GAME_START
 
     
     def get_current_game_state(self) -> GameState:
