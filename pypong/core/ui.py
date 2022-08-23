@@ -22,10 +22,6 @@ class UIManager:
             self._loaded_fonts[font_pair[0]] = pygame.font.Font(font_pair[1], font_pair[2])
 
 
-    def __del__(self) -> None:
-        pass
-
-
     def draw_text(self, 
                   text: str, 
                   font_name:str, 

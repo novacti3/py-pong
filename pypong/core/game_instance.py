@@ -17,22 +17,24 @@ PROMPT_TEXT_SIZE = 28
 
 
 class GameInstance:
-    def __init__(self, window_width: int, window_height: int, window_caption: str) -> None:
+    def start(self, window_width: int, window_height: int, window_caption: str) -> None:
+        # Init pygame
         pygame.init()
+        
+        # Create and init window
         self._window = GameWindow(window_width, window_height, window_caption)
+        
+        # Init game stats
         self._game_stats = GameStats()
-        self._ui = UIManager([
-            ("title", "./ka1.ttf", TITLE_TEXT_SIZE),
-            ("prompt", "./ka1.ttf", PROMPT_TEXT_SIZE), 
-            ("score", "./ka1.ttf", SCORE_TEXT_SIZE)
-        ])
-        # self._player_one = Paddle()
-        # self._player_two = Paddle()
-        # self._ball = Ball()
+        
+        # Init resources
+        self._init_resources()
+
 
     def quit(self) -> None:
         pygame.quit()
         sys.exit()
+
 
     def run(self, delta_time: float) -> int:
         # TODO: Implement game loop
@@ -73,16 +75,27 @@ class GameInstance:
         return event_result
 
 
+
     def get_window(self) -> GameWindow:
         return self._window
+
 
     def get_game_stats(self) -> GameStats:
         return self._game_stats
 
 
+
     def _init_resources(self):
-        # TODO: Implement resource init
+        self._ui = UIManager([
+            ("title", "./ka1.ttf", TITLE_TEXT_SIZE),
+            ("prompt", "./ka1.ttf", PROMPT_TEXT_SIZE), 
+            ("score", "./ka1.ttf", SCORE_TEXT_SIZE)
+        ])
+        # self._player_one = Paddle()
+        # self._player_two = Paddle()
+        # self._ball = Ball()
         pass
+
 
     def _handle_events(self):
         # TODO: Implement pygame event handling
@@ -95,6 +108,7 @@ class GameInstance:
                     if event.key == pygame.K_ESCAPE:
                         return -1
         pass
+
 
     def _handle_input(self):
         # TODO: Implement player input handling
