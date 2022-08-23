@@ -1,10 +1,9 @@
 import sys
 import pygame
 
-from pypong.core.game_stats import GameState
-from pypong.core.game_stats import GameStats
+from pypong.core.game_stats import GameState, GameStats
 from pypong.core.game_window import GameWindow
-from pypong.core.ui import UIManager
+from pypong.core.ui import UIManager, Text
 
 
 COLOR_WHITE = (255, 255, 255)
@@ -41,17 +40,28 @@ class GameInstance:
 
         match(self._game_stats.get_current_game_state()):
             case GameState.ROUND_START:
-                title_linesize = self._ui.get_font_line_size("title")
-                title_card = self._ui.draw_prompt("Py-Pong!", "title", COLOR_WHITE)
+                title_card: Text = self._ui.draw_text("Py-Pong!", "title", COLOR_WHITE)
+                title_card_pos = (
+                    self._window.get_width() / 2 - title_card.size[0] / 2, 
+                    self._window.get_height()/ 2 - title_card.size[1] / 2 - title_card.line_size
+                )
+
+                space_prompt: Text = self._ui.draw_text("Press SPACE to start", "prompt", COLOR_LIGHT_GREY)
+                space_prompt_pos = (
+                    self._window.get_width()/2 - space_prompt.size[0] / 2,
+                    ((self._window.get_height()/2 - space_prompt.size[1] / 2))
+                )
                 
-                prompt_linesize = self._ui.get_font_line_size("prompt")
-                space_prompt = self._ui.draw_prompt("Press SPACE to start", "prompt", COLOR_LIGHT_GREY)
-                escape_prompt = self._ui.draw_prompt("Press ESC to quit the game", "prompt", COLOR_LIGHT_GREY)
+                escape_prompt: Text = self._ui.draw_text("Press ESC to quit the game", "prompt", COLOR_LIGHT_GREY)
+                escape_prompt_pos = (
+                    self._window.get_width()/2 - escape_prompt.size[0] / 2,
+                    (self._window.get_height()/2 - escape_prompt.size[1] / 2) + space_prompt.line_size
+                )
 
                 window_surface = self._window.get_surface()
-                window_surface.blit(title_card[0], (self._window.get_width()/2 - title_card[1][0]/2, self._window.get_height()/2 - title_card[1][1]/2 - title_linesize))
-                window_surface.blit(space_prompt[0], (self._window.get_width()/2 - space_prompt[1][0]/2, ((self._window.get_height()/2 - space_prompt[1][1]/2))))
-                window_surface.blit(escape_prompt[0], (self._window.get_width()/2 - escape_prompt[1][0]/2, (self._window.get_height()/2 - escape_prompt[1][1]/2) + prompt_linesize))
+                window_surface.blit(title_card.surface, title_card_pos)
+                window_surface.blit(space_prompt.surface, space_prompt_pos)
+                window_surface.blit(escape_prompt.surface, escape_prompt_pos)
 
             case GameState.ROUND_IN_PROGRESS:
                 pass
