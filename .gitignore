@@ -1,0 +1,5 @@
+.vscode
+__pycache__/
+pypong/__pycache__/
+pypong/core/__pycache__/
+pypong/gameplay/__pycache__/
