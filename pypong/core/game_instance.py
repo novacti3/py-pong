@@ -1,7 +1,7 @@
 import sys
 import pygame
 
-from pypong.core.game_stats      import GameState, GameStats
+from pypong.core.game_stats      import GameState, GameStats, PlayerIndex
 from pypong.core.game_window     import GameWindow
 from pypong.core.ui              import Text, UIManager 
 from pypong.gameplay.game_object import GameObject
@@ -61,18 +61,27 @@ class GameInstance:
             case GameState.ROUND_START:
                 window_surface.fill(COLOR_BACKGROUND)
                 self._render_score_counter()
-                self._render_game_objects()
+                self._render_paddles()
+                self._render_ball()
                 self._render_round_start_prompt()
 
             case GameState.ROUND_IN_PROGRESS:
                 self._handle_input(delta_time)
                 self._move_ball(delta_time)
+                self._handle_collisions()
+                self._evaluate_score()
                 window_surface.fill(COLOR_BACKGROUND)
                 self._render_score_counter()
-                self._render_game_objects()
+                self._render_paddles()
+                self._render_ball()
                 pass
 
             case GameState.ROUND_END:
+                window_surface.fill(COLOR_BACKGROUND)
+                self._render_score_counter()
+                self._render_paddles()
+                self._render_ball()
+                self._render_round_end_prompt()
                 pass
 
         pygame.display.update()
@@ -112,7 +121,6 @@ class GameInstance:
         self._player_one = GameObject(player_one_pos, PADDLE_SIZE, COLOR_GAME_OBJECT)
         self._player_two = GameObject(player_two_pos, PADDLE_SIZE, COLOR_GAME_OBJECT)
         self._ball = GameObject(ball_pos, BALL_SIZE, COLOR_GAME_OBJECT)
-        self._ball_velocity = [-BALL_SPEED, BALL_SPEED]
 
 
 
@@ -135,6 +143,7 @@ class GameInstance:
                                 self.get_game_stats().set_current_game_state(GameState.ROUND_START)
                             
                             if current_game_state == GameState.ROUND_START:
+                                self._ball_velocity = [-BALL_SPEED, BALL_SPEED]
                                 self.get_game_stats().set_current_game_state(GameState.ROUND_IN_PROGRESS)
 
         return 1
@@ -176,6 +185,39 @@ class GameInstance:
         ))        
  
 
+    def _handle_collisions(self):
+        ball_rect = self._ball.get_rect()
+        if ball_rect.colliderect(self._player_one.get_rect()) or \
+           ball_rect.colliderect(self._player_two.get_rect()):
+           self._ball_velocity[0] *= -1
+
+    
+    def _evaluate_score(self):
+        game_stats = self.get_game_stats()
+        score = list(game_stats.get_score())
+        
+        ball_pos_x = self._ball.get_rect().center[0]
+        player_one_pos_x = self._player_one.get_rect().center[0]
+        player_two_pos_x = self._player_two.get_rect().center[0]
+
+        has_score_changed = False
+        player_who_scored: PlayerIndex = 0
+
+        if ball_pos_x <= player_one_pos_x:
+            score[0] += 1
+            has_score_changed = True
+            player_who_scored = PlayerIndex.PLAYER_TWO
+        elif ball_pos_x >= player_two_pos_x:
+            score[1] += 1
+            has_score_changed = True
+            player_who_scored = PlayerIndex.PLAYER_ONE
+
+        if has_score_changed:
+            game_stats.set_score(tuple(score), player_who_scored)
+            game_stats.set_current_game_state(GameState.ROUND_END)
+            self._ball_velocity = [0.0, 0.0]
+
+
 
     def _render_start_screen(self) -> None:
         title_card: Text = self._ui.draw_text("Py-Pong!", "title", COLOR_TITLE_CARD)
@@ -202,25 +244,6 @@ class GameInstance:
         window_surface.blit(space_prompt.surface, space_prompt_pos)
         window_surface.blit(escape_prompt.surface, escape_prompt_pos)
 
-    
-    def _render_game_objects(self) -> None:
-        player_one_rect = self._player_one.get_rect()
-        player_one_pos = (player_one_rect.x, player_one_rect.y)
-        
-        player_two_rect = self._player_two.get_rect()
-        player_two_pos = (player_two_rect.x, player_two_rect.y)
-        
-        ball_rect = self._ball.get_rect()
-        ball_pos = (ball_rect.x, ball_rect.y)
-
-        window_size = self.get_window().get_size()
-        window_surface = self.get_window().get_surface()
-
-        pygame.draw.line(window_surface, COLOR_SCORE, (window_size[0] / 2, 0), (window_size[0] / 2, window_size[1]), CENTER_LINE_WIDTH)
-        window_surface.blit(self._player_one.get_surface(), player_one_pos)
-        window_surface.blit(self._player_two.get_surface(), player_two_pos)
-        window_surface.blit(self._ball.get_surface(), ball_pos)
-
 
     def _render_round_start_prompt(self) -> None:
         window = self.get_window()
@@ -232,6 +255,42 @@ class GameInstance:
             self._ball.get_position()[1] - prompt.line_size * 2 
         )
         window.get_surface().blit(prompt.surface, prompt_pos)
+    
+
+    def _render_round_end_prompt(self) -> None:
+        window = self.get_window()
+        window_size = window.get_size()
+        last_player_to_score = self.get_game_stats().get_last_player_to_score()
+
+        prompt = self._ui.draw_text(f"Player {int(last_player_to_score)} scored!", "prompt", COLOR_TITLE_CARD)
+        prompt_pos = (
+            window_size[0] / 2 - prompt.size[0] / 2,
+            window_size[1] / 2 - prompt.size[1] / 2 
+        )
+        window.get_surface().blit(prompt.surface, prompt_pos)
+
+
+    def _render_paddles(self) -> None:
+        player_one_rect = self._player_one.get_rect()
+        player_one_pos = (player_one_rect.x, player_one_rect.y)
+        
+        player_two_rect = self._player_two.get_rect()
+        player_two_pos = (player_two_rect.x, player_two_rect.y)
+        
+        window_size = self.get_window().get_size()
+        window_surface = self.get_window().get_surface()
+
+        pygame.draw.line(window_surface, COLOR_SCORE, (window_size[0] / 2, 0), (window_size[0] / 2, window_size[1]), CENTER_LINE_WIDTH)
+        window_surface.blit(self._player_one.get_surface(), player_one_pos)
+        window_surface.blit(self._player_two.get_surface(), player_two_pos)
+
+
+    def _render_ball(self) -> None:
+        ball_rect = self._ball.get_rect()
+        ball_pos = (ball_rect.x, ball_rect.y)
+
+        window_surface = self.get_window().get_surface()
+        window_surface.blit(self._ball.get_surface(), ball_pos)
 
 
     def _render_score_counter(self) -> None:

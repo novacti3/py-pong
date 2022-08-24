@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import Enum, IntEnum
 from typing import Tuple
 
 
@@ -9,11 +9,17 @@ class GameState(Enum):
     ROUND_END = 3
 
 
+class PlayerIndex(IntEnum):
+    PLAYER_ONE = 1
+    PLAYER_TWO = 2
+
+
 class GameStats:
     def __init__(self) -> None:
         self._player_one_score = 0
         self._player_two_score = 0
         self._current_game_state = GameState.GAME_START
+        self._last_player_to_score: PlayerIndex = 0
 
     
     def get_current_game_state(self) -> GameState:
@@ -26,6 +32,10 @@ class GameStats:
     def get_score(self) -> Tuple[int, int]:
         return (self._player_one_score, self._player_two_score)
 
-    def set_score(self, new_player_one_score: int, new_player_two_score: int):
-        self._player_one_score = new_player_one_score
-        self._player_two_score = new_player_two_score
+    def set_score(self, new_score: Tuple[int, int], player_index: PlayerIndex):
+        self._player_one_score = new_score[0]
+        self._player_two_score = new_score[1]
+        self._last_player_to_score = player_index
+
+    def get_last_player_to_score(self) -> PlayerIndex:
+        return self._last_player_to_score
