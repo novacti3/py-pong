@@ -7,24 +7,24 @@ from pypong.core.ui              import Text, UIManager
 from pypong.gameplay.game_object import GameObject
 
 
-COLOR_TITLE_CARD  = (255, 255, 255)
-COLOR_PROMPT      = (150, 150, 150)
+COLOR_TITLE_CARD = (255, 255, 255)
+COLOR_PROMPT = (150, 150, 150)
 COLOR_GAME_OBJECT = (150, 150, 150)
-COLOR_SCORE       = (77, 77, 77)
-COLOR_BACKGROUND  = (0, 0, 0)
+COLOR_SCORE = (77, 77, 77)
+COLOR_BACKGROUND = (0, 0, 0)
 
 
-TITLE_TEXT_FONT_SIZE  = 72
-SCORE_TEXT_FONT_SIZE  = 48
+TITLE_TEXT_FONT_SIZE = 72
+SCORE_TEXT_FONT_SIZE = 48
 PROMPT_TEXT_FONT_SIZE = 28
 
 
-PADDLE_SIZE       = (20, 125)
-PADDLE_SPEED      = 200.0
-PADDLE_X_OFFSET   = 25
+PADDLE_SIZE = (20, 125)
+PADDLE_SPEED = 200.0
+PADDLE_X_OFFSET = 25
 
-BALL_SIZE         = (25, 25)
-BALL_SPEED        = 150.0
+BALL_SIZE = (25, 25)
+BALL_SPEED = 150.0
 
 CENTER_LINE_WIDTH = 3
 
@@ -53,7 +53,7 @@ class GameInstance:
         event_result = self._handle_events()
 
         window_surface = self.get_window().get_surface()
-        match(self._game_stats.get_current_game_state()):
+        match(self._game_stats.current_game_state):
             case GameState.GAME_START:
                 window_surface.fill(COLOR_BACKGROUND)
                 self._render_start_screen()
@@ -136,20 +136,20 @@ class GameInstance:
                             return -1
                     
                         case pygame.K_SPACE:
-                            current_game_state = self.get_game_stats().get_current_game_state()
+                            current_game_state = self._game_stats.current_game_state
                             
                             if current_game_state == GameState.GAME_START:
-                                self.get_game_stats().set_current_game_state(GameState.ROUND_START)
+                                self._game_stats.current_game_state = GameState.ROUND_START
                             
                             if current_game_state == GameState.ROUND_START:
                                 self._ball_velocity = [-BALL_SPEED, BALL_SPEED]
-                                self.get_game_stats().set_current_game_state(GameState.ROUND_IN_PROGRESS)
+                                self._game_stats.current_game_state = GameState.ROUND_IN_PROGRESS
 
                             if current_game_state == GameState.ROUND_END:
                                 self._player_one.reset()
                                 self._player_two.reset()
                                 self._ball.reset()
-                                self.get_game_stats().set_current_game_state(GameState.ROUND_START)
+                                self._game_stats.current_game_state = GameState.ROUND_START
 
         return 1
 
@@ -198,8 +198,8 @@ class GameInstance:
 
     
     def _evaluate_score(self):
-        game_stats = self.get_game_stats()
-        score = list(game_stats.get_score())
+        game_stats = self._game_stats
+        score = list(game_stats.score)
         
         ball_pos_x = self._ball.get_rect().center[0]
         player_one_pos_x = self._player_one.get_rect().center[0]
@@ -218,8 +218,9 @@ class GameInstance:
             player_who_scored = PlayerIndex.PLAYER_ONE
 
         if has_score_changed:
-            game_stats.set_score(tuple(score), player_who_scored)
-            game_stats.set_current_game_state(GameState.ROUND_END)
+            game_stats.score = tuple(score)
+            game_stats.player_who_last_scored = player_who_scored
+            game_stats.current_game_state = GameState.ROUND_END
             self._ball_velocity = [0.0, 0.0]
 
 
@@ -265,7 +266,7 @@ class GameInstance:
     def _render_round_end_prompt(self) -> None:
         window = self.get_window()
         window_size = window.get_size()
-        last_player_to_score = self.get_game_stats().get_last_player_to_score()
+        last_player_to_score = self._game_stats.player_who_last_scored
 
         winner_prompt = self._ui.draw_text(f"Player {int(last_player_to_score)} scored!", "prompt", COLOR_TITLE_CARD)
         space_prompt = self._ui.draw_text("Press SPACE", "prompt", COLOR_PROMPT)
@@ -316,7 +317,7 @@ class GameInstance:
 
 
     def _render_score_counter(self) -> None:
-        score = self.get_game_stats().get_score()
+        score = self._game_stats.score
         
         player_one_score = self._ui.draw_text(str(score[0]), "score", COLOR_SCORE)
         player_two_score = self._ui.draw_text(str(score[1]), "score", COLOR_SCORE)
