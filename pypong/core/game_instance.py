@@ -262,12 +262,29 @@ class GameInstance:
         window_size = window.get_size()
         last_player_to_score = self.get_game_stats().get_last_player_to_score()
 
-        prompt = self._ui.draw_text(f"Player {int(last_player_to_score)} scored!", "prompt", COLOR_TITLE_CARD)
-        prompt_pos = (
-            window_size[0] / 2 - prompt.size[0] / 2,
-            window_size[1] / 2 - prompt.size[1] / 2 
+        winner_prompt = self._ui.draw_text(f"Player {int(last_player_to_score)} scored!", "prompt", COLOR_TITLE_CARD)
+        space_prompt = self._ui.draw_text("Press SPACE", "prompt", COLOR_PROMPT)
+        new_round_prompt = self._ui.draw_text("to start new round", "prompt", COLOR_PROMPT)
+
+        winner_prompt.surface.get_rect()
+
+        center_width = window_size[0] / 2
+        winner_prompt_pos = (
+            center_width - winner_prompt.size[0] / 2,
+            window_size[1] / 2 - winner_prompt.size[1] / 2 - winner_prompt.line_size
         )
-        window.get_surface().blit(prompt.surface, prompt_pos)
+        space_prompt_pos = (
+            center_width - space_prompt.size[0] / 2,
+            winner_prompt_pos[1] + winner_prompt.line_size * 2
+        )
+        new_round_prompt_pos = (
+            center_width - new_round_prompt.size[0] / 2,
+            space_prompt_pos[1] + space_prompt.line_size
+        )
+
+        window.get_surface().blit(winner_prompt.surface, winner_prompt_pos)
+        window.get_surface().blit(space_prompt.surface, space_prompt_pos)
+        window.get_surface().blit(new_round_prompt.surface, new_round_prompt_pos)
 
 
     def _render_paddles(self) -> None:
