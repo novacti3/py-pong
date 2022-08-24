@@ -1,3 +1,5 @@
+import random
+import time
 import pygame
 # Importing everything directly because this file contains the entry point
 # of the entire package (game) and the project is small enough
@@ -133,6 +135,9 @@ class GameInstance:
 
     # Creates and initializes all of the resources required by the game to work
     def _init_resources(self):
+        # Initialize pseudo-random number generator
+        random.seed(time.time() * 1000)
+        
         # Load the font in all of the desired font sizes 
         # for the different Text objects in the game
         self._ui = UIManager([
@@ -206,7 +211,13 @@ class GameInstance:
                             # Start the actual gameplay                            
                             if current_game_state == GameState.ROUND_START:
                                 # Give the ball some velocity so that it actually moves around
-                                self._ball.velocity = [-BALL_SPEED, BALL_SPEED]
+                                # Randomize it a bit so that it always starts a bit unexpectedly
+                                x_velocity_sign = random.randint(-1, 2)
+                                x_velocity_multiplier = 1 if x_velocity_sign == 0 else x_velocity_sign
+                                y_velocity_sign = random.randint(-1, 2)
+                                y_velocity_multiplier = 1 if y_velocity_sign == 0 else y_velocity_sign 
+
+                                self._ball.velocity = [BALL_SPEED * x_velocity_multiplier, BALL_SPEED * y_velocity_multiplier]
                                 self._game_stats.current_game_state = GameState.ROUND_IN_PROGRESS
 
                             # Reset all of the objects' positions and start a new round
