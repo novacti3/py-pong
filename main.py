@@ -1,3 +1,4 @@
+import sys
 import pygame.time
 # Importing the game's entry point as an alias
 # for clarity and convenience
@@ -35,6 +36,7 @@ def main():
 
     # Close the game and clean up
     pypong_instance.quit()
+    sys.exit()
 
 
 if __name__ == "__main__":
