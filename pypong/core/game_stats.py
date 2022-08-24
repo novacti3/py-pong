@@ -1,7 +1,7 @@
 from enum import Enum, IntEnum
-from typing import Tuple
 
 
+"""Enum of the possible states that the game can be in"""
 class GameState(Enum):
     GAME_START = 0
     ROUND_START = 1
@@ -9,33 +9,19 @@ class GameState(Enum):
     ROUND_END = 3
 
 
+"""IntEnum containing the int index of each player
+Ensures consistent indexes throughout the codebase.
+"""
 class PlayerIndex(IntEnum):
     PLAYER_ONE = 1
     PLAYER_TWO = 2
 
 
+"""Struct containing the current statistics of the game
+Keeps track of the current game state, score etc.
+"""
 class GameStats:
     def __init__(self) -> None:
-        self._player_one_score = 0
-        self._player_two_score = 0
-        self._current_game_state = GameState.GAME_START
-        self._last_player_to_score: PlayerIndex = 0
-
-    
-    def get_current_game_state(self) -> GameState:
-        return self._current_game_state
-
-    def set_current_game_state(self, new_state: GameState) -> None:
-        self._current_game_state = new_state
-
-    
-    def get_score(self) -> Tuple[int, int]:
-        return (self._player_one_score, self._player_two_score)
-
-    def set_score(self, new_score: Tuple[int, int], player_index: PlayerIndex):
-        self._player_one_score = new_score[0]
-        self._player_two_score = new_score[1]
-        self._last_player_to_score = player_index
-
-    def get_last_player_to_score(self) -> PlayerIndex:
-        return self._last_player_to_score
+        self.score = (0, 0)
+        self.current_game_state = GameState.GAME_START
+        self.player_who_last_scored: PlayerIndex = 0
