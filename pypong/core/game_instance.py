@@ -20,8 +20,12 @@ PROMPT_TEXT_FONT_SIZE = 28
 
 
 PADDLE_SIZE       = (20, 125)
-BALL_SIZE         = (25, 25)
+PADDLE_SPEED      = 200
 PADDLE_X_OFFSET   = 25
+
+BALL_SIZE         = (25, 25)
+BALL_SPEED        = 150
+
 CENTER_LINE_WIDTH = 3
 
 
@@ -62,6 +66,8 @@ class GameInstance:
                 self._render_round_start_prompt()
 
             case GameState.ROUND_IN_PROGRESS:
+                self._handle_input(delta_time)
+                
                 window_surface.fill(COLOR_BACKGROUND)
                 self._render_score_counter()
                 self._render_game_objects()
@@ -92,18 +98,18 @@ class GameInstance:
         ])
         
         window_size = self.get_window().get_size()
-        player_one_pos = (
+        player_one_pos = [
             0 + PADDLE_SIZE[0] / 2 + PADDLE_X_OFFSET,
             window_size[1] / 2 - PADDLE_SIZE[1] / 2    
-        )
-        player_two_pos = (
+        ]
+        player_two_pos = [
             window_size[0] - PADDLE_SIZE[0] * 1.5 - PADDLE_X_OFFSET,
             window_size[1] / 2 - PADDLE_SIZE[1] / 2    
-        )
-        ball_pos = (
+        ]
+        ball_pos = [
             window_size[0] / 2 - BALL_SIZE[0] / 2,
             window_size[1] / 2 - BALL_SIZE[1] / 2,
-        )
+        ]
         self._player_one = GameObject(player_one_pos, PADDLE_SIZE, COLOR_GAME_OBJECT)
         self._player_two = GameObject(player_two_pos, PADDLE_SIZE, COLOR_GAME_OBJECT)
         self._ball = GameObject(ball_pos, BALL_SIZE, COLOR_GAME_OBJECT)
@@ -134,9 +140,26 @@ class GameInstance:
         return 1
 
 
-    def _handle_input(self):
-        # TODO: Implement player input handling
-        pass
+    def _handle_input(self, delta_time: float):
+        pressed_keys = pygame.key.get_pressed()
+
+        window_size = self.get_window().get_size()
+        if pressed_keys[pygame.K_w]:
+            if self._player_one.get_position()[1] > 0:
+                self._player_one.move((0, -PADDLE_SPEED * delta_time))
+        
+        if pressed_keys[pygame.K_s]:
+            if self._player_one.get_position()[1] + self._player_one.get_scale()[1] < window_size[1]:
+                self._player_one.move((0, PADDLE_SPEED * delta_time))
+
+
+        if pressed_keys[pygame.K_UP]:
+            if self._player_two.get_position()[1] > 0:
+                self._player_two.move((0, -PADDLE_SPEED * delta_time))
+        if pressed_keys[pygame.K_DOWN]:
+            if self._player_two.get_position()[1] + self._player_two.get_scale()[1] < window_size[1]:
+                self._player_two.move((0, PADDLE_SPEED * delta_time))
+        
 
 
     def _render_start_screen(self) -> None:
@@ -191,7 +214,7 @@ class GameInstance:
         prompt = self._ui.draw_text("Press SPACE to play", "prompt", COLOR_TITLE_CARD)
         prompt_pos = (
             window_size[0] / 2 - prompt.size[0] / 2,
-            self._ball.get_rect().y - prompt.line_size * 2 
+            self._ball.get_position()[1] - prompt.line_size * 2 
         )
         window.get_surface().blit(prompt.surface, prompt_pos)
 
