@@ -19,9 +19,10 @@ SCORE_TEXT_FONT_SIZE  = 48
 PROMPT_TEXT_FONT_SIZE = 28
 
 
-PADDLE_SIZE     = (20, 125)
-BALL_SIZE       = (25, 25)
-PADDLE_X_OFFSET = 25
+PADDLE_SIZE       = (20, 125)
+BALL_SIZE         = (25, 25)
+PADDLE_X_OFFSET   = 25
+CENTER_LINE_WIDTH = 3
 
 
 class GameInstance:
@@ -48,15 +49,22 @@ class GameInstance:
         # TODO: Implement game loop
         event_result = self._handle_events()
 
+        window_surface = self.get_window().get_surface()
         match(self._game_stats.get_current_game_state()):
             case GameState.GAME_START:
+                window_surface.fill(COLOR_BACKGROUND)
                 self._render_start_screen()
             
             case GameState.ROUND_START:
-                self._render_game_screen()
-                pass
+                window_surface.fill(COLOR_BACKGROUND)
+                self._render_score_counter()
+                self._render_game_objects()
+                self._render_round_start_prompt()
 
             case GameState.ROUND_IN_PROGRESS:
+                window_surface.fill(COLOR_BACKGROUND)
+                self._render_score_counter()
+                self._render_game_objects()
                 pass
 
             case GameState.ROUND_END:
@@ -133,6 +141,7 @@ class GameInstance:
 
     def _render_start_screen(self) -> None:
         title_card: Text = self._ui.draw_text("Py-Pong!", "title", COLOR_TITLE_CARD)
+        # FIXME: Cache the window size into a local variable
         title_card_pos = (
             self._window.get_size()[0] / 2 - title_card.size[0] / 2, 
             self._window.get_size()[1] / 2 - title_card.size[1] / 2 - title_card.line_size
@@ -151,13 +160,12 @@ class GameInstance:
         )
 
         window_surface = self._window.get_surface()
-        window_surface.fill(COLOR_BACKGROUND)
         window_surface.blit(title_card.surface, title_card_pos)
         window_surface.blit(space_prompt.surface, space_prompt_pos)
         window_surface.blit(escape_prompt.surface, escape_prompt_pos)
 
     
-    def _render_game_screen(self) -> None:
+    def _render_game_objects(self) -> None:
         player_one_rect = self._player_one.get_rect()
         player_one_pos = (player_one_rect.x, player_one_rect.y)
         
@@ -167,9 +175,43 @@ class GameInstance:
         ball_rect = self._ball.get_rect()
         ball_pos = (ball_rect.x, ball_rect.y)
 
+        window_size = self.get_window().get_size()
         window_surface = self.get_window().get_surface()
-        window_surface.fill(COLOR_BACKGROUND)
+
+        pygame.draw.line(window_surface, COLOR_SCORE, (window_size[0] / 2, 0), (window_size[0] / 2, window_size[1]), CENTER_LINE_WIDTH)
         window_surface.blit(self._player_one.get_surface(), player_one_pos)
         window_surface.blit(self._player_two.get_surface(), player_two_pos)
         window_surface.blit(self._ball.get_surface(), ball_pos)
 
+
+    def _render_round_start_prompt(self) -> None:
+        window = self.get_window()
+        window_size = window.get_size()
+
+        prompt = self._ui.draw_text("Press SPACE to play", "prompt", COLOR_TITLE_CARD)
+        prompt_pos = (
+            window_size[0] / 2 - prompt.size[0] / 2,
+            self._ball.get_rect().y - prompt.line_size * 2 
+        )
+        window.get_surface().blit(prompt.surface, prompt_pos)
+
+
+    def _render_score_counter(self) -> None:
+        score = self.get_game_stats().get_score()
+        
+        player_one_score = self._ui.draw_text(str(score[0]), "score", COLOR_SCORE)
+        player_two_score = self._ui.draw_text(str(score[1]), "score", COLOR_SCORE)
+        
+        window_size = self.get_window().get_size()
+        player_one_score_pos = (
+            window_size[0] / 4 - player_one_score.size[0] / 2,
+            0 + player_one_score.size[1] + player_one_score.line_size
+        )
+        player_two_score_pos = (
+            3 * window_size[0] / 4 - player_two_score.size[0] / 2,
+            0 + player_two_score.size[1] + player_two_score.line_size
+        )
+
+        window_surface = self.get_window().get_surface()
+        window_surface.blit(player_one_score.surface, player_one_score_pos)
+        window_surface.blit(player_two_score.surface, player_two_score_pos)

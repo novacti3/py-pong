@@ -1,10 +1,10 @@
-import pygame
+import pygame.time
 import pypong.core.game_instance as pypong
 
 
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
-SCREEN_CAPTION = "Py-Pong"
+SCREEN_WIDTH   = 800
+SCREEN_HEIGHT  = 600
+SCREEN_CAPTION = "Py-Pong!"
 
 
 def main():
