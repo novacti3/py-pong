@@ -20,11 +20,11 @@ PROMPT_TEXT_FONT_SIZE = 28
 
 
 PADDLE_SIZE       = (20, 125)
-PADDLE_SPEED      = 200
+PADDLE_SPEED      = 200.0
 PADDLE_X_OFFSET   = 25
 
 BALL_SIZE         = (25, 25)
-BALL_SPEED        = 150
+BALL_SPEED        = 150.0
 
 CENTER_LINE_WIDTH = 3
 
@@ -50,7 +50,6 @@ class GameInstance:
 
 
     def run(self, delta_time: float) -> int:
-        # TODO: Implement game loop
         event_result = self._handle_events()
 
         window_surface = self.get_window().get_surface()
@@ -67,7 +66,7 @@ class GameInstance:
 
             case GameState.ROUND_IN_PROGRESS:
                 self._handle_input(delta_time)
-                
+                self._move_ball(delta_time)
                 window_surface.fill(COLOR_BACKGROUND)
                 self._render_score_counter()
                 self._render_game_objects()
@@ -113,7 +112,8 @@ class GameInstance:
         self._player_one = GameObject(player_one_pos, PADDLE_SIZE, COLOR_GAME_OBJECT)
         self._player_two = GameObject(player_two_pos, PADDLE_SIZE, COLOR_GAME_OBJECT)
         self._ball = GameObject(ball_pos, BALL_SIZE, COLOR_GAME_OBJECT)
-        pass
+        self._ball_velocity = [-BALL_SPEED, BALL_SPEED]
+
 
 
     def _handle_events(self) -> int:
@@ -159,7 +159,22 @@ class GameInstance:
         if pressed_keys[pygame.K_DOWN]:
             if self._player_two.get_position()[1] + self._player_two.get_scale()[1] < window_size[1]:
                 self._player_two.move((0, PADDLE_SPEED * delta_time))
+
+
+    def _move_ball(self, delta_time: float):
+        window_size = self.get_window().get_size()
+        ball_pos = self._ball.get_position()
         
+        if ball_pos[0] <= 0 or ball_pos[0] + BALL_SIZE[0] >= window_size[0]:
+            self._ball_velocity[0] *= -1
+        if ball_pos[1] <= 0 or ball_pos[1] + BALL_SIZE[1] >= window_size[1]:
+            self._ball_velocity[1] *= -1
+
+        self._ball.move((
+            self._ball_velocity[0] * delta_time, 
+            self._ball_velocity[1] * delta_time
+        ))        
+ 
 
 
     def _render_start_screen(self) -> None:
