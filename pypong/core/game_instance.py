@@ -1,10 +1,11 @@
 import sys
 import pygame
 
-from pypong.core.game_stats      import GameState, GameStats, PlayerIndex
-from pypong.core.game_window     import GameWindow
-from pypong.core.ui              import Text, UIManager 
+from pypong.core.game_stats import GameState, GameStats, PlayerIndex
+from pypong.core.game_window import GameWindow
+from pypong.core.ui import Text, UIManager
 from pypong.gameplay.game_object import GameObject
+from pypong.gameplay.ball import Ball 
 
 
 COLOR_TITLE_CARD = (255, 255, 255)
@@ -120,7 +121,7 @@ class GameInstance:
         ]
         self._player_one = GameObject(player_one_pos, PADDLE_SIZE, COLOR_GAME_OBJECT)
         self._player_two = GameObject(player_two_pos, PADDLE_SIZE, COLOR_GAME_OBJECT)
-        self._ball = GameObject(ball_pos, BALL_SIZE, COLOR_GAME_OBJECT)
+        self._ball = Ball(ball_pos, [0.0, 0.0], BALL_SIZE, COLOR_GAME_OBJECT)
 
 
     def _handle_events(self) -> int:
@@ -142,7 +143,7 @@ class GameInstance:
                                 self._game_stats.current_game_state = GameState.ROUND_START
                             
                             if current_game_state == GameState.ROUND_START:
-                                self._ball_velocity = [-BALL_SPEED, BALL_SPEED]
+                                self._ball.velocity = [-BALL_SPEED, BALL_SPEED]
                                 self._game_stats.current_game_state = GameState.ROUND_IN_PROGRESS
 
                             if current_game_state == GameState.ROUND_END:
@@ -178,23 +179,24 @@ class GameInstance:
     def _move_ball(self, delta_time: float):
         window_size = self._window.get_size()
         ball_pos = self._ball.get_position()
-        
+        ball_velocity = self._ball.velocity
+
         if ball_pos[0] <= 0 or ball_pos[0] + BALL_SIZE[0] >= window_size[0]:
-            self._ball_velocity[0] *= -1
+            ball_velocity[0] *= -1
         if ball_pos[1] <= 0 or ball_pos[1] + BALL_SIZE[1] >= window_size[1]:
-            self._ball_velocity[1] *= -1
+            ball_velocity[1] *= -1
 
         self._ball.move((
-            self._ball_velocity[0] * delta_time, 
-            self._ball_velocity[1] * delta_time
+            ball_velocity[0] * delta_time, 
+            ball_velocity[1] * delta_time
         ))        
- 
+
 
     def _handle_collisions(self):
         ball_rect = self._ball.get_rect()
         if ball_rect.colliderect(self._player_one.get_rect()) or \
            ball_rect.colliderect(self._player_two.get_rect()):
-           self._ball_velocity[0] *= -1
+           self._ball.velocity[0] *= -1
 
     
     def _evaluate_score(self):
@@ -221,7 +223,7 @@ class GameInstance:
             game_stats.score = tuple(score)
             game_stats.player_who_last_scored = player_who_scored
             game_stats.current_game_state = GameState.ROUND_END
-            self._ball_velocity = [0.0, 0.0]
+            self._ball.velocity = [0.0, 0.0]
 
 
 
