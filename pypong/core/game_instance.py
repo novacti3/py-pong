@@ -52,7 +52,7 @@ class GameInstance:
     def run(self, delta_time: float) -> int:
         event_result = self._handle_events()
 
-        window_surface = self.get_window().get_surface()
+        window_surface = self._window.get_surface()
         match(self._game_stats.current_game_state):
             case GameState.GAME_START:
                 window_surface.fill(COLOR_BACKGROUND)
@@ -105,7 +105,7 @@ class GameInstance:
             ("score", "./ka1.ttf", SCORE_TEXT_FONT_SIZE)
         ])
         
-        window_size = self.get_window().get_size()
+        window_size = self._window.get_size()
         player_one_pos = [
             0 + PADDLE_SIZE[0] / 2 + PADDLE_X_OFFSET,
             window_size[1] / 2 - PADDLE_SIZE[1] / 2    
@@ -157,7 +157,7 @@ class GameInstance:
     def _handle_input(self, delta_time: float):
         pressed_keys = pygame.key.get_pressed()
 
-        window_size = self.get_window().get_size()
+        window_size = self._window.get_size()
         if pressed_keys[pygame.K_w]:
             if self._player_one.get_position()[1] > 0:
                 self._player_one.move((0, -PADDLE_SPEED * delta_time))
@@ -176,7 +176,7 @@ class GameInstance:
 
 
     def _move_ball(self, delta_time: float):
-        window_size = self.get_window().get_size()
+        window_size = self._window.get_size()
         ball_pos = self._ball.get_position()
         
         if ball_pos[0] <= 0 or ball_pos[0] + BALL_SIZE[0] >= window_size[0]:
@@ -252,7 +252,7 @@ class GameInstance:
 
 
     def _render_round_start_prompt(self) -> None:
-        window = self.get_window()
+        window = self._window
         window_size = window.get_size()
 
         prompt = self._ui.draw_text("Press SPACE to start", "prompt", COLOR_TITLE_CARD)
@@ -264,7 +264,7 @@ class GameInstance:
     
 
     def _render_round_end_prompt(self) -> None:
-        window = self.get_window()
+        window = self._window
         window_size = window.get_size()
         last_player_to_score = self._game_stats.player_who_last_scored
 
@@ -300,8 +300,8 @@ class GameInstance:
         player_two_rect = self._player_two.get_rect()
         player_two_pos = (player_two_rect.x, player_two_rect.y)
         
-        window_size = self.get_window().get_size()
-        window_surface = self.get_window().get_surface()
+        window_size = self._window.get_size()
+        window_surface = self._window.get_surface()
 
         pygame.draw.line(window_surface, COLOR_SCORE, (window_size[0] / 2, 0), (window_size[0] / 2, window_size[1]), CENTER_LINE_WIDTH)
         window_surface.blit(self._player_one.get_surface(), player_one_pos)
@@ -312,7 +312,7 @@ class GameInstance:
         ball_rect = self._ball.get_rect()
         ball_pos = (ball_rect.x, ball_rect.y)
 
-        window_surface = self.get_window().get_surface()
+        window_surface = self._window.get_surface()
         window_surface.blit(self._ball.get_surface(), ball_pos)
 
 
@@ -322,7 +322,7 @@ class GameInstance:
         player_one_score = self._ui.draw_text(str(score[0]), "score", COLOR_SCORE)
         player_two_score = self._ui.draw_text(str(score[1]), "score", COLOR_SCORE)
         
-        window_size = self.get_window().get_size()
+        window_size = self._window.get_size()
         player_one_score_pos = (
             window_size[0] / 4 - player_one_score.size[0] / 2,
             0 + player_one_score.size[1] + player_one_score.line_size
@@ -332,6 +332,6 @@ class GameInstance:
             0 + player_two_score.size[1] + player_two_score.line_size
         )
 
-        window_surface = self.get_window().get_surface()
+        window_surface = self._window.get_surface()
         window_surface.blit(player_one_score.surface, player_one_score_pos)
         window_surface.blit(player_two_score.surface, player_two_score_pos)
