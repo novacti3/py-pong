@@ -41,12 +41,11 @@ Down arrow - move paddle down
 Spacebar - continue
 Escape - quit the game (at any point)
 
-<br>
+
 ### Images
 <img src="res/imgs/round_start.jpg" width="500" height="350">
 <img src="res/imgs/round_progress.jpg" width="500" height="350">
 <img src="res/imgs/round_end.jpg" width="500" height="350">
 
-<br>
 ### Special thanks
 Thank you to Vic Fieger for creating the awesome font "<a href="https://www.1001freefonts.com/karmatic-arcade.font">Karmatic Arcade</a>"
