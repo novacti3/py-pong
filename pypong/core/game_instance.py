@@ -123,7 +123,6 @@ class GameInstance:
         self._ball = GameObject(ball_pos, BALL_SIZE, COLOR_GAME_OBJECT)
 
 
-
     def _handle_events(self) -> int:
         events = pygame.event.get()
         for event in events:
@@ -145,6 +144,12 @@ class GameInstance:
                             if current_game_state == GameState.ROUND_START:
                                 self._ball_velocity = [-BALL_SPEED, BALL_SPEED]
                                 self.get_game_stats().set_current_game_state(GameState.ROUND_IN_PROGRESS)
+
+                            if current_game_state == GameState.ROUND_END:
+                                self._player_one.reset()
+                                self._player_two.reset()
+                                self._ball.reset()
+                                self.get_game_stats().set_current_game_state(GameState.ROUND_START)
 
         return 1
 
@@ -249,7 +254,7 @@ class GameInstance:
         window = self.get_window()
         window_size = window.get_size()
 
-        prompt = self._ui.draw_text("Press SPACE to play", "prompt", COLOR_TITLE_CARD)
+        prompt = self._ui.draw_text("Press SPACE to start", "prompt", COLOR_TITLE_CARD)
         prompt_pos = (
             window_size[0] / 2 - prompt.size[0] / 2,
             self._ball.get_position()[1] - prompt.line_size * 2 

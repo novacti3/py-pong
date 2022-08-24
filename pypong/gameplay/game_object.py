@@ -1,6 +1,4 @@
-from turtle import pos
 from typing import Tuple
-from math import copysign
 
 import pygame.surface
 import pygame.rect
@@ -14,8 +12,9 @@ class GameObject:
         self._surface = pygame.surface.Surface(scale)
         self._surface.fill(color)
         self._rect = pygame.rect.Rect(round(position[0]), round(position[1]), scale[0], scale[1])
-        self._position = position
-        self._scale = scale
+        self._position = list(position)
+        self._initial_position = list(position)
+        self._scale = tuple(scale)
 
 
 
@@ -25,6 +24,12 @@ class GameObject:
         self._rect.x = round(self._position[0])
         self._rect.y = round(self._position[1])
     
+
+    def reset(self) -> None:
+        self._position = list(self._initial_position)
+        self._rect.x = round(self._position[0])
+        self._rect.y = round(self._position[1])
+
 
 
     def get_surface(self) -> pygame.surface.Surface:
