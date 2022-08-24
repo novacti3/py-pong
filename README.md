@@ -1,12 +1,12 @@
 # Py-Pong!
 Pong clone made in Python (hence the name "Py(thon)-Pong!")
 Created in about 3 days using Python 3.10 and pygame
+<br>
 <img src="res/imgs/titlecard.jpg">
 
 ## Requirements
 Python 3.10 installed on your system
 (preferrably with an entry in your system's PATH environment variable as well)
-
 
 ## How to play
 1. Open the **terminal** in the directory where you want the game to be and clone this repository:
@@ -41,12 +41,12 @@ Down arrow - move paddle down
 Spacebar - continue
 Escape - quit the game (at any point)
 
-
+<br>
 ### Images
 <img src="res/imgs/round_start.jpg" width="500" height="350">
 <img src="res/imgs/round_progress.jpg" width="500" height="350">
 <img src="res/imgs/round_end.jpg" width="500" height="350">
 
-
+<br>
 ### Special thanks
 Thank you to Vic Fieger for creating the awesome font "<a href="https://www.1001freefonts.com/karmatic-arcade.font">Karmatic Arcade</a>"
