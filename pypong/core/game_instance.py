@@ -141,9 +141,9 @@ class GameInstance:
         # Load the font in all of the desired font sizes 
         # for the different Text objects in the game
         self._ui = UIManager([
-            ("title", "./ka1.ttf", TITLE_TEXT_FONT_SIZE),
-            ("prompt", "./ka1.ttf", PROMPT_TEXT_FONT_SIZE), 
-            ("score", "./ka1.ttf", SCORE_TEXT_FONT_SIZE)
+            ("title", "res/ka1.ttf", TITLE_TEXT_FONT_SIZE),
+            ("prompt", "res/ka1.ttf", PROMPT_TEXT_FONT_SIZE), 
+            ("score", "res/ka1.ttf", SCORE_TEXT_FONT_SIZE)
         ])
         
         window_size = self._window.get_size()
