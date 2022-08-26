@@ -8,8 +8,7 @@ class GameWindow:
     """Initialize the window's surface as pygame's main drawing surface
     to which all of the subsequent Surfaces are rendered"""
     def __init__(self, width: int, height: int, caption: str) -> None:
-        self._width = width
-        self._height = height
+        self._size = (width, height)
         self._caption = caption
 
         self._surface = pygame.display.set_mode((width, height))
@@ -27,7 +26,7 @@ class GameWindow:
         return self._surface
 
     def get_size(self) -> Tuple[int, int]:
-        return (self._width, self._height)
+        return tuple(self._size)
 
     def get_caption(self) -> str:
-        return self._caption
+        return str(self._caption)

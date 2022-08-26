@@ -62,9 +62,9 @@ class GameObject:
         return self._rect
 
     
-    def get_position(self) -> Tuple[int, int]:
-        return (self._rect.x, self._rect.y)
+    def get_position(self) -> Tuple[float, float]:
+        return (self._position[0], self._position[1])
 
 
     def get_scale(self) -> Tuple[int, int]:
-        return self._scale
+        return tuple(self._scale)
